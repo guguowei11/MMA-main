@@ -52,17 +52,14 @@ class PVT_CNN_stage(nn.Module):
                 drop_path_list=drop_path_list,
             ) for _ in range(num_path)])
 
-        self.InvRes = self._make_layer(ResBlock, embed_dim, num_layers, stride=1)
-        self.aggregate = Conv2dBN(embed_dim * (num_path + 1), embed_dim, act_layer=nn.Hardswish)
+        self.InvRes = self._make_layer(ResBlock, embed_dim, num_layers)
+        self.aggregate = Conv2dBN(embed_dim * (num_path + 1), embed_dim)
 
-    def _make_layer(self, block, planes, num_blocks, stride=1,):
-            strides = [stride] + [1] * (num_blocks - 1)
+    def _make_layer(self, block, planes, num_blocks):
+            num_blocks = [num_blocks]
             layers = []
-            for idx, stride in enumerate(strides):
+            for _ in enumerate(num_blocks):
                 layers.append(block(planes))
-                if stride == 2:
-                    self.resolution[0] /= 2
-                    self.resolution[1] /= 2
             return nn.Sequential(*layers)
 
     def forward(self, inputs):
@@ -95,8 +92,7 @@ def dpr_generator(drop_path_rate, num_layers, num_stages):
     return dpr
 
 
-class MMA(nn.Module):
-    """Multi-Path ViT class."""
+class MMA_Backbone(nn.Module):
     def __init__(self, num_stages=4, num_path=[3, 3, 3, 3], num_layers=[3, 4, 6, 3], embed_dims=[64, 128, 192, 256], mlp_ratios=[4, 4, 4, 4], num_heads=[1, 2, 4, 8],
         sr_ratios=[8, 4, 2, 1], drop_path_rate=0.0, num_classes=4, **kwargs,):
         super().__init__()
@@ -116,7 +112,7 @@ class MMA(nn.Module):
             ) for idx in range(self.num_stages)
         ])
 
-        # Multi-Head Convolutional Self-Attention (MHCA)
+        # Multi-Head Convolutional Self-Attention (PVT_CNN_stages)
         self.PVT_CNN_stages = nn.ModuleList([
             PVT_CNN_stage(
                 embed_dims[idx],
@@ -149,9 +145,9 @@ class MMA(nn.Module):
         return x
 
 
-def mma_tiny(**kwargs):
+def mma_backbone_tiny(**kwargs):
 
-    model = MMA(
+    model = MMA_Backbone(
         img_size=224,
         num_stages=4,
         num_path=[3, 3, 3, 3],
@@ -166,9 +162,9 @@ def mma_tiny(**kwargs):
     return model
 
 
-def mma_small(**kwargs):
+def mma_backbone_small(**kwargs):
 
-    model = MMA(
+    model = MMA_Backbone(
         img_size=224,
         num_stages=4,
         num_path=[3, 3, 3, 3],
@@ -182,14 +178,14 @@ def mma_small(**kwargs):
 
     return model
 
-def mma_medium(**kwargs):
+def mma_backbone_medium(**kwargs):
 
-    model = MMA(
+    model = MMA_Backbone(
         img_size=224,
         num_stages=4,
         num_path=[3, 3, 3, 3],
         num_layers=[3, 4, 10, 3],
-        embed_dims=[64, 128, 192, 256],
+        embed_dims=[64, 128, 256, 512],
         mlp_ratios=[4, 4, 4, 4],
         num_heads=[1, 2, 4, 8],
         sr_ratios=[8, 4, 2, 1],
@@ -199,14 +195,14 @@ def mma_medium(**kwargs):
     return model
 
 
-def mma_large(**kwargs):
+def mma_backbone_large(**kwargs):
 
-    model = MMA(
+    model = MMA_Backbone(
         img_size=224,
         num_stages=4,
         num_path=[3, 3, 3, 3],
         num_layers=[3, 4, 18, 3],
-        embed_dims=[64, 128, 192, 256],
+        embed_dims=[64, 128, 256, 512],
         mlp_ratios=[4, 4, 4, 4],
         num_heads=[1, 2, 4, 8],
         sr_ratios=[8, 4, 2, 1],
@@ -218,7 +214,7 @@ def mma_large(**kwargs):
 
 if __name__ == '__main__':
     x = torch.rand(3, 3, 224, 224)
-    model = mma_tiny()
+    model = mma_backbone_small()
     y = model(x)
     print(y.shape)
 
