@@ -92,7 +92,7 @@ def dpr_generator(drop_path_rate, num_layers, num_stages):
 
 
 class MMA_Backbone(nn.Module):
-    def __init__(self, num_stages=4, num_path=[3, 3, 3, 3], num_layers=[3, 4, 6, 3], embed_dims=[64, 128, 192, 256], mlp_ratios=[4, 4, 4, 4], num_heads=[1, 2, 4, 8],
+    def __init__(self,in_chans=3, num_stages=4, num_path=[3, 3, 3, 3], num_layers=[3, 4, 6, 3], embed_dims=[64, 128, 192, 256], mlp_ratios=[4, 4, 4, 4], num_heads=[1, 2, 4, 8],
         sr_ratios=[8, 4, 2, 1], drop_path_rate=0.0, num_classes=4, **kwargs,):
         super().__init__()
 
@@ -104,7 +104,7 @@ class MMA_Backbone(nn.Module):
         # Patch embeddings.
         self.MSP_stages = nn.ModuleList([
             MSP(
-                in_chans=embed_dims[idx-1] if idx != 0 else 3,
+                in_chans=embed_dims[idx-1] if idx != 0 else in_chans,
                 embed_dim=embed_dims[idx],
                 num_path=num_path[idx],
                 patch_size = 2 if idx != 0 else 4,
