@@ -21,9 +21,9 @@ class PatchEmbed(nn.Module):
         return x
 
 
-class MSP(nn.Module):      #将输入数据进行深度卷积补丁嵌入，最终返回的是一个列表，其中包含了每个模块的输出结果
+class MSP(nn.Module):
     """Depthwise Convolutional Patch Embedding stage comprised of
-    `DWCPatchEmbed` layers."""
+    `PatchEmbed` layers."""
     def __init__(self,in_chans, embed_dim, patch_size, num_path=3, kernel_size=[3,5,7],kernel_size2=[5,7,11]):
         super(MSP, self).__init__()
 

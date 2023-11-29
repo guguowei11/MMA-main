@@ -37,8 +37,7 @@ class Conv2dBN(nn.Module):
 
 
 class PVT_CNN_stage(nn.Module):
-    """Multi-Head Convolutional self-Attention stage comprised of `MHCAEncoder`
-    layers."""
+    """Multi-Head Convolutional self-Attention stage comprised of `PVT_CNNEncoder` layers."""
     def __init__(self, embed_dim, num_layers=1, num_heads=8, mlp_ratio=3, num_path=4, sr_ratios=8, drop_path_list=[]):
         super().__init__()
 

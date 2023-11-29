@@ -17,7 +17,7 @@ class Conv2dBnRelu(nn.Module):
 
 
 class MGAM(nn.Module):
-    def __init__(self, inplanes):      #输入输出通道数一样的情况下不改变图片大小
+    def __init__(self, inplanes):
         super(MGAM, self).__init__()
 
         self.conv1 = (nn.Sequential(
